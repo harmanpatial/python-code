@@ -268,7 +268,7 @@ def usage():
     print "\t\tIf you only want the KML files to be generated."
     
     print "\nEXAMPLES"
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\""
+    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and produce the MAT and KML file"
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --daemon --logfile=/tmp/logfile"
 
     print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\ and generate the MAT file"
