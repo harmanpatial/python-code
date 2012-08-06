@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+    <time></time>
+    <field-intensity></field-intensity>
+    <sensor-amplitude></sensor-amplitude>
+</elementstoparse>
+<newnames>
+<newname1 old="field-intensity" new="fieldintensity" />
+<newname2 old="sensor-amplitude" new="sensoramplitude" />
+</newnames>
+</parse>

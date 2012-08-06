@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+	<time></time>
+	<aanderaa-oxygen></aanderaa-oxygen>
+	<aanderaa-saturation></aanderaa-saturation>
+	<temperature></temperature>
+</elementstoparse>
+<newnames>
+	<newname1 old="aanderaa-oxygen" new="aanderaaoxygen" />
+	<newname2 old="aanderaa-saturation" new="aanderaasaturation" />
+</newnames>
+</parse>

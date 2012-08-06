@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+    <time></time>
+    <x></x>
+    <y></y>
+    <z></z>
+</elementstoparse>
+<newnames>
+</newnames>
+</parse>

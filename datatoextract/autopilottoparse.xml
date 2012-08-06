@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+	<time></time>
+	<altitude></altitude>
+	<commanded-current></commanded-current>
+	<commanded-depth></commanded-depth>
+	<commanded-depth-original></commanded-depth-original>
+	<commanded-heading></commanded-heading>
+	<commanded-pitch></commanded-pitch>
+	<commanded-pitch-original></commanded-pitch-original>
+	<commanded-pitchmoment></commanded-pitchmoment>
+	<commanded-pitchrate></commanded-pitchrate>
+	<commanded-plane1></commanded-plane1>
+	<commanded-plane2></commanded-plane2>
+	<commanded-plane3></commanded-plane3>
+	<commanded-plane4></commanded-plane4>
+	<commanded-revolutions></commanded-revolutions>
+	<commanded-roll></commanded-roll>
+	<commanded-rollmoment></commanded-rollmoment>
+	<commanded-rollrate></commanded-rollrate>
+	<commanded-surge></commanded-surge>
+	<commanded-thrust></commanded-thrust>
+	<commanded-yawmoment></commanded-yawmoment>
+	<commanded-yawrate></commanded-yawrate>
+	<control-count></control-count>
+	<depth></depth>
+	<depth-track-error-count></depth-track-error-count>
+	<depth-track-error-time></depth-track-error-time>
+	<kinematicscale></kinematicscale>
+	<lat></lat>
+	<lon></lon>
+	<pitch></pitch>
+	<pitch-feed-forward></pitch-feed-forward>
+	<pitch-track-error-count></pitch-track-error-count>
+	<pitch-track-error-time></pitch-track-error-time>
+	<roll></roll>
+	<roll-track-error-count></roll-track-error-count>
+	<roll-track-error-time></roll-track-error-time>
+	<surge></surge>
+</elementstoparse>
+<newnames>
+	<newname1 old="commanded-current" new="commandedcurrent"/>
+	<newname2 old="commanded-depth" new="commandeddepth"/>
+	<newname3 old="commanded-depth-original" new="commandeddepthoriginal"/>
+	<newname4 old="commanded-heading" new="commandedheading"/>
+	<newname5 old="commanded-pitch" new="commandedpitch"/>
+	<newname6 old="commanded-pitch-original" new="commandedpitchoriginal"/>
+	<newname7 old="commanded-pitchmoment" new="commandedpitchmoment"/>
+	<newname8 old="commanded-pitchrate" new="commandedpitchrate"/>
+	<newname9 old="commanded-plane1" new="commandedplane1"/>
+	<newname10 old="commanded-plane2" new="commandedplane2"/>
+	<newname11 old="commanded-plane3" new="commandedplane3"/>
+	<newname12 old="commanded-plane4" new="commandedplane4"/>
+	<newname13 old="commanded-revolutions" new="commandedrevolutions"/>
+	<newname14 old="commanded-roll" new="commandedroll"/>
+	<newname15 old="commanded-rollmoment" new="commandedrollmoment"/>
+	<newname16 old="commanded-rollrate" new="commandedrollrate"/>
+	<newname17 old="commanded-surge" new="commandedsurge"/>
+	<newname18 old="commanded-thrust" new="commandedthrust"/>
+	<newname19 old="commanded-yawmoment" new="commandedyawmoment"/>
+	<newname20 old="commanded-yawrate" new="commandedyawrate"/>
+	<newname21 old="control-count" new="controlcount"/>
+	<newname22 old="depth-track-error-count" new="depthtrackerrorcount"/>
+	<newname23 old="depth-track-error-time" new="depthtrackerrortime"/>
+	<newname24 old="pitch-feed-forward" new="pitchfeedforward"/>
+	<newname25 old="pitch-track-error-count" new="pitchtrackerrorcount"/>
+	<newname26 old="pitch-track-error-time" new="pitchtrackerrortime"/>
+	<newname27 old="roll-track-error-count" new="rolltrackerrorcount"/>
+	<newname28 old="roll-track-error-time" new="rolltrackerrortime"/>
+</newnames>
+</parse>

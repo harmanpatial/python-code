@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+	<time></time>
+	<capacity></capacity>
+	<current></current>
+	<cycles></cycles>
+	<voltage></voltage>
+	<powerlevel></powerlevel>
+</elementstoparse>
+<newnames>
+	<newname1 old="capacity" new="batterycapacity"/>
+	<newname2 old="charge" new="batterycharge"/>
+	<newname3 old="current" new="batterycurrent"/>
+	<newname4 old="cycles" new="batterycycles"/>
+	<newname5 old="voltage" new="batteryvoltage"/>
+</newnames>
+</parse>

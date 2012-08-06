@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+    <time></time>
+    <altitude></altitude>
+    <heading></heading>
+    <pitch></pitch>
+    <roll></roll>
+    <lat></lat>
+    <lon></lon>
+    <sound-velocity></sound-velocity>
+    <salinity></salinity>
+    <heave></heave>
+    <surge></surge>
+    <sway></sway>
+    <temperature></temperature>
+    <var_lat></var_lat>
+    <var_lat_lon></var_lat_lon>
+    <var_lon></var_lon>
+    <valid></valid>
+    <depth></depth>
+    <idle-status></idle-status>
+    <magnetic-deviation></magnetic-deviation>
+    <maxWarningLeve></maxWarningLeve>
+    <pilot-status></pilot-status>
+    <water-density></water-density>
+    <zero-altitude></zero-altitude>
+</elementstoparse>
+<newnames>
+	<newname1 old="lat" new="latitude" />
+    <newname2 old="lon" new="longitude" />
+    <newname3 old="magnetic-deviation" new="magnetic_deviation" />
+    <newname4 old="pilot-status" new="pilot_status" />
+    <newname5 old="var_lat" new="variance_lat" />
+    <newname6 old="var_lat_lon" new="variance_lat_lon" />
+    <newname7 old="var_lon" new="variance_lon" />
+    <newname8 old="water-density" new="water_density" />
+    <newname9 old="zero-altitude" new="zero_altitude" />
+    <newname10 old="sound-velocity" new="sound_velocity" />
+    <newname11 old="idle-status" new="idle_status" />
+</newnames>
+<kmldatatoparse>
+	<time></time>
+    <lat></lat>
+    <lon></lon>
+</kmldatatoparse>
+</parse>

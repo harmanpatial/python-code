@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+    <time></time>
+    <heading></heading>
+    <headingbias></headingbias>
+    <mag1></mag1>
+    <mag2></mag2>
+    <mag3></mag3>
+    <pitch></pitch>
+    <pitchrate></pitchrate>
+    <roll></roll>
+    <rollrate></rollrate>
+    <yawrate></yawrate>
+</elementstoparse>
+<newnames>
+</newnames>
+</parse>

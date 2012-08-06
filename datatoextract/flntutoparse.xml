@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<parse>
+<elementstoparse>
+    <time></time>
+    <chl-reference></chl-reference>
+    <thermistor></thermistor>
+    <chl-raw></chl-raw>
+    <ntu-reference></ntu-reference>
+    <ntu-raw></ntu-raw>
+</elementstoparse>
+<newnames>
+	<newnames1 old="chl-reference" new="chlreference" />
+    <newnames1 old="chl-raw" new="chlraw" />
+    <newnames1 old="ntu-reference" new="ntureference" />
+    <newnames1 old="ntu-raw" new="nturaw" />
+</newnames>
+</parse>
