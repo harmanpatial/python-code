@@ -526,8 +526,8 @@ class navigator(parsexmllogs):
         month = intToMonth(month);
         
         pnt.balloonstyle.text = '<head><h4> Cruise Name : ' + kmlName + '</h4></head> <p>Date of the cruise : ' + date + " " + month + " " + year + "."; 
-        pnt.balloonstyle.text += '<br /> Distance Travelled : ' + str(distanceTravelled[kmlName]) + ' kms.</p>';
-#        pnt.balloonstyle.text += '<br /> Distance Travelled : ' + "Unknown Distance " + ' kms.</p>';
+#        pnt.balloonstyle.text += '<br /> Distance Travelled : ' + str(distanceTravelled[kmlName]) + ' kms.</p>';
+        pnt.balloonstyle.text += '<br /> Distance Travelled : ' + "Unknown Distance " + ' kms.</p>';
         
         pnt.balloonstyle.bgcolor = Color.white
         pnt.balloonstyle.textcolor = Color.black
