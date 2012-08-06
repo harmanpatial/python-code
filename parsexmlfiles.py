@@ -268,7 +268,7 @@ def usage():
     print "\n\t--parsekml"
     print "\t\tIf you only want the KML files to be generated."
     
-    print "\n\t----debug"
+    print "\n\t--debug"
     print "\t\tUsed only for debugging purposes. Would printout a lot of log messages."
     
     print "\nEXAMPLES"
