@@ -257,8 +257,9 @@ def usage():
     print "\t\tIf this  parameter is provided, the parsing parameter would run in the background."
     print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
 
-    print "\n\t--logfile"
+    print "\n\t--logfile=[filename]"
     print "\t\tThe full path of the file where you want the logs to be stored."
+    print "\t\tThe logfile would be ignored if the --daemon flag is not given."
     print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
 
     print "\n\t--parsemat"
@@ -266,6 +267,9 @@ def usage():
 
     print "\n\t--parsekml"
     print "\t\tIf you only want the KML files to be generated."
+    
+    print "\n\t----debug"
+    print "\t\tUsed only for debugging purposes. Would printout a lot of log messages."
     
     print "\nEXAMPLES"
     print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and produce the MAT and KML file"
@@ -278,7 +282,7 @@ def usage():
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsekml --logfile=/tmp/logfile"
     
     print "\nWARNING"
-    print "Do not give --daemon option, if you don't understand it(IT WOULD BE BAD FOR YOU).\n"
+    print "If you don't understand background process in linux/mac, Do not give --daemon option (IT WOULD BE BAD FOR YOU).\n"
 
 def main(argv):
     datadir = None
