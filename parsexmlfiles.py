@@ -228,13 +228,13 @@ def set_logger(isdaemon,logfile,debugmode):
 # This is a simple method that would print how the script should be 
 # initiated.
 def usage():
-    print "NAME "
+    print "\nNAME "
     print "\tparsexmlfiles.py -- Parse the Gavia XML files\n"
 
     print "SYNOPSIS \n"
-    print "\tpython parsexmlfiles.py --datadir=[ directory ] --daemon --logfile=[ file ]"
-    print "\tpython parsexmlfiles.py --datadir=[ directory ] --daemon --logfile=[ file ] --parsemat"
-    print "\tpython parsexmlfiles.py --datadir=[ directory ] --daemon --logfile=[ file ] --parsekml"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename]"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename] --parsemat"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename ] --parsekml"
 
     print "\nDESCRIPTION"
     print "\tparsexmlfile.py script would parse the Gavia XML files and generate MAT and KML files."
@@ -245,7 +245,7 @@ def usage():
 
     print "\n\t--datadir=[directory]"
     print "\t\tThe datadir is mandatory."
-    print "\t\tThe structure of the directory given here should be : \n"
+    print "\t\tThe directory given here should have the following structure :- \n"
     print "\t\t--[directory]"
     print "\t\t    --cruise Name"
     print "\t\t      --gaviaxmllogs"
@@ -254,11 +254,11 @@ def usage():
     print "\t\t      --kml            # where the kml file would be generated"
 
     print "\n\t--daemon"
-    print "\t\tIf this  parameter is provided, the parsing parameter would run in the background."
+    print "\t\tIf this  parameter is provided, the parsing process would run in the background."
     print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
 
     print "\n\t--logfile=[filename]"
-    print "\t\tThe full path of the file where you want the logs to be stored."
+    print "\t\tThe full path of the file that would store the logs."
     print "\t\tThe logfile would be ignored if the --daemon flag is not given."
     print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
 
@@ -269,20 +269,20 @@ def usage():
     print "\t\tIf you only want the KML files to be generated."
     
     print "\n\t--debug"
-    print "\t\tUsed only for debugging purposes. Would printout a lot of log messages."
+    print "\t\tUsed only for debugging purposes. Would print a lot of log messages."
     
     print "\nEXAMPLES"
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and produce the MAT and KML file"
+    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the MAT and KML file"
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --daemon --logfile=/tmp/logfile"
 
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\ and generate the MAT file"
+    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the MAT file"
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsemat --logfile=/tmp/logfile"
 
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\ and generate the KML file"
+    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the KML file"
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsekml --logfile=/tmp/logfile"
     
     print "\nWARNING"
-    print "If you don't understand background process in linux/mac, Do not give --daemon option (IT WOULD BE BAD FOR YOU).\n"
+    print "If you don't understand background process in unix/linux, DO NOT GIVE --daemon option (IT WOULD BE BAD FOR YOU).\n"
 
 def main(argv):
     datadir = None
