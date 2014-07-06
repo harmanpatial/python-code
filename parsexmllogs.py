@@ -41,24 +41,15 @@ parser_logger = logging.getLogger('parsexmlfiles')
 #
 class parsexmllogs(object):
 
-    def __init__(self, path, isDir, tosearch):
+    def __init__(self, inputFile):
         self.data = []
         self.inputfiles = []
         self.newnames = {}
-        self.elmtstoparse = []
+        self.elmtstoparse = {}
         self.totalEntries = 0
         
-        try:
-            if ( isDir is 1): # Dir. is given as Input.
-                listing = os.listdir(path);
-                for infile in listing:
-                    if fnmatch.fnmatch(infile, tosearch):
-                        curr_file = path + infile; # adding the full name(or relative name)
-                        self.inputfiles.append(curr_file);
-            else:
-                self.inputfiles.append(path)
-        except IOError, (errno, strerror):
-            print "I/O error({0}): {1}".format(errno, strerror)
+        self.inputfiles.append(inputFile)
+        
         return;
 
     # Method to be implemented by child.
@@ -66,19 +57,37 @@ class parsexmllogs(object):
         pass
     
     # Method to be implemented by child.
-    def saveMAT(self,outputMATfile): 
+    def saveXLS(self,outputXLSfile): 
         pass
         
     def internalfillElmtsToParse(self,filename):
         # Set the elmtstoparse data structure.
+        firstLevelDic = {}
         try:
             doc = xml.dom.minidom.parse(filename)
-            childnodes = doc.getElementsByTagName('elementstoparse').item(0).childNodes
+            firstLayers = doc.getElementsByTagName('elementstoparse').item(0).childNodes
 
-            for ch in childnodes:
-                if ch.nodeType is ch.ELEMENT_NODE:
-                    node = str(ch.nodeName)      # Converting from Unicode to Normal String.
-                    self.elmtstoparse.append(node)
+            for firstLayer in firstLayers:
+                if firstLayer.nodeType is firstLayer.ELEMENT_NODE:
+                    parser_logger.info("First Layer node : " + firstLayer.nodeName)
+                    for firstLayerAttr in firstLayer.attributes.keys():
+                        parser_logger.info("Attribute Name : " + firstLayerAttr + " <> Value : " + firstLayer.attributes[firstLayerAttr].value)
+                        if(firstLayer.attributes[firstLayerAttr].value == "parent"):
+                            firstLevelDic[str(firstLayer.nodeName)] = {}
+                            secondLayers = firstLayer.childNodes
+                            for secondLayer in secondLayers:
+                                if secondLayer.nodeType is secondLayer.ELEMENT_NODE:
+                                    parser_logger.info("Second Layer node : " + secondLayer.nodeName)
+                                    if str(secondLayer.nodeName) not in firstLevelDic[str(firstLayer.nodeName)]:
+                                        firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)] = {}
+                                    for secondLayerAttr in secondLayer.attributes.keys():
+                                        parser_logger.info("Second Layer node : " + secondLayerAttr)
+                                        if str(secondLayerAttr) not in firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)]:
+                                            firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)][str(secondLayerAttr)] = []
+                                        firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)][str(secondLayerAttr)].append(str(secondLayer.attributes[secondLayerAttr].value))
+             
+            print "The whole dictinory : " + str(firstLevelDic)
+            #node = str(ch.nodeName)      # Converting from Unicode to Normal String.
         except IOError, (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
          
@@ -160,7 +169,7 @@ class parsexmllogs(object):
         except IOError, (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
 
-    def internalsaveMAT(self,outputMATfile, string):
+    def internalsaveXLS(self,outputXLSfile, string):
         matData = {}
         temp = {}
         matData[string] = temp
@@ -324,7 +333,7 @@ class CHparse(ContentHandler):
                             dts = d.datetime(year,month,day,hour,minute,second,usecond)
                             self.__elementstoparse[name][self.__count] = mktime(dts.timetuple()) + 1e-6*dts.microsecond
                         else:
-                            self.__elementstoparse[name][self.__count] = float(self.__temp)
+                            self.__elementstoparse[name][self.__count] = float(self.__temp) # THIS IS WHERE DATA IS STORED 
                         self.__capture = 0
                         self.__temp = 0
                         break

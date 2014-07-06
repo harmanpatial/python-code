@@ -11,12 +11,7 @@
 #
 # The structure of the data directory should be 
 #
-# --dataset
-#   --gaviaxmllogs
-#     --parsed       # where mat files go.
-#     --unzipped     # where xml files should be.
-#   --kml
-#
+
 import sys, os
 import errno
 import getopt
@@ -24,171 +19,69 @@ import fnmatch, copy
 import logging
 from logging.handlers import RotatingFileHandler 
 
-from gaviaxmllog import aanderaaoxygen, adcp, autopilot, collision, mag, magfg
+from gaviaxmllog import buildClass
+from gaviaxmllog import on_gallery_episodes
+from gaviaxmllog import adcp, autopilot, collision, mag, magfg
 from gaviaxmllog import depth, engineer, flntu, gps, gyro, navigator, seanav, imagemetadata
 
 from parsexmllogs import CSHELParseError
 
 parser_logger = logging.getLogger('parsexmlfiles')
 
+
 # parseall
 #
-# Parse all the files in the indir and store the output 
-# in the outdir.
+# Parse all the files in the inDir and store the output 
+# in the outDir.
 # Can well start multiple threads and run them in parallel.
 #
-def parseMATfiles(indir, outdir):
-    
+def parseXLSfiles(inDir, outDir):
+    currDir = os.path.dirname(os.path.realpath(__file__))
+
+    parser_logger.info("\n +++++++++++++++++++++++++++++++++++")
     try:
-        parser_logger.info("aanderaaoxygen")
-        outaanderaaoxygen = outdir + "aanderaaoxygen.mat"
-        parseaanderaaoxygen = aanderaaoxygen(indir, 1);
+        lsFiles = []
+        for sName in os.listdir(inDir):
+            if os.path.isfile(os.path.join(inDir, sName)):
+                lsFiles.append(sName)
+
+	# Take the first file and find which template is applicable 
+
+        build = buildClass()
+
+        for inputFile in lsFiles:
+            parser_logger.debug("Input File : " + inputFile)
+            # For Testing ---- Trying to fail
+            # className = className + "red"
+            # Make a call to the className
+            parserObject = build.construct(inputFile)
+            if parserObject is None:  # No matching class for this file
+                parser_logger.warning(" *************************************** ")
+                parser_logger.info("FAILURE : NO FILE CLASS FOR FILE : " + inputFile)
+                parser_logger.warning(" *************************************** ")
+                continue # Continue to the next file
+      
+            # Parse the file.
+            parserObject.parse()
+                    
+                    
+
+
+            
+        return;
+        
+        outaanderaaoxygen = outDir + ""
+        parseaanderaaoxygen = aanderaaoxygen(inDir, 1);
         if ( os.path.exists(outaanderaaoxygen) == False):
             parseaanderaaoxygen.parse();
             parseaanderaaoxygen.saveMAT(outaanderaaoxygen)
         
         del(parseaanderaaoxygen)
          
-        parser_logger.info("adcp")
-        outadcp = outdir + "adcp.mat"
-        parseadcp = adcp(indir, 1);
-        if ( os.path.exists(outadcp) == False):
-            parseadcp.parse();
-            parseadcp.saveMAT(outadcp)
- 
-        del(parseadcp)
-        
-        parser_logger.info("autopilot")
-        outautopilot = outdir + "autopilot.mat"
-        parseautopilot = autopilot(indir, 1);
-        if ( os.path.exists(outautopilot) == False):
-            parseautopilot.parse();
-            parseautopilot.saveMAT(outautopilot)
-        
-        del(parseautopilot)
-        
-        parser_logger.info("mag")
-        outmag = outdir + "mag.mat"
-        parsemag = mag(indir, 1);
-        if ( os.path.exists(outmag) == False):
-            parsemag.parse();
-            parsemag.saveMAT(outmag)
-        
-        del(parsemag)        
-        
-        parser_logger.info("magfg")
-        outmagfg = outdir + "magfg.mat"
-        parsemagfg = magfg(indir, 1);
-        if ( os.path.exists(outmagfg) == False):
-            parsemagfg.parse();
-            parsemagfg.saveMAT(outmagfg)
-        
-        del(parsemagfg) 
-
-        parser_logger.info("collision")
-        outcollision = outdir + "col.mat"
-        parsecollision = collision(indir, 1);
-        if ( os.path.exists(outcollision) == False):
-            parsecollision.parse();
-            parsecollision.saveMAT(outcollision)
-    
-        del(parsecollision)
-    
-        parser_logger.info("depth")
-        outdepth = outdir + "depth.mat"
-        parsedepth = depth(indir, 1);
-        if ( os.path.exists(outdepth) == False):
-            parsedepth.parse();
-            parsedepth.saveMAT(outdepth)
-    
-        del(parsedepth)
-    
-#        parser_logger.info("engineer")
-#        outengineer = outdir + "engineer.mat" 
-        # Problem with the binary type data.
-#        parseeng = engineer(indir, 1);
-#        if ( os.path.exists(outengineer) == False):
-#            parseeng.parse();
-#            parseeng.saveMAT(outengineer)
-            
-#        del(parseeng)
-    
-        parser_logger.info("flntu")
-        outflntu = outdir + "flntu.mat"
-        parseflntu = flntu(indir, 1);
-        if ( os.path.exists(outflntu) == False):
-            parseflntu.parse();
-            parseflntu.saveMAT(outflntu)
-    
-        del(parseflntu)
-        
-        parser_logger.info("gps")
-        outgps = outdir + "gps.mat"
-        parsegps = gps(indir, 1);
-        if ( os.path.exists(outgps) == False):
-            parsegps.parse();
-            parsegps.saveMAT(outgps)
-
-        del(parsegps)
-        
-        parser_logger.info("gyro")
-        outgyro = outdir + "gyro.mat"
-        parsegyro = gyro(indir, 1);
-        if ( os.path.exists(outgyro) == False):
-            parsegyro.parse();
-            parsegyro.saveMAT(outgyro)
-    
-        del(parsegyro)
-        
-        parser_logger.info("navigator")
-        outnav = outdir + "nav.mat"
-        parsenav = navigator(indir, 1);
-        if ( os.path.exists(outnav) == False):
-            parsenav.parse();
-            parsenav.saveMAT(outnav)
-    
-        del(parsenav)
-        
-        parser_logger.info("imagemetadata")
-        outimagemetadata = outdir + "imagemetadata.mat"
-        parseimagemetadata = navigator(indir, 1);
-        if ( os.path.exists(outimagemetadata) == False):
-            parseimagemetadata.parse();
-            parseimagemetadata.saveMAT(outimagemetadata)
-    
-        del(parseimagemetadata)
-        
-        parser_logger.info("seanav")
-        outsea = outdir + "sea.mat"
-        parsesea = seanav(indir, 1);
-        if ( os.path.exists(outsea) == False):
-            parsesea.parse();
-            parsesea.saveMAT(outsea)
-
-        del(parsesea)
         
     except CSHELParseError as cshel:
         errormessage = "ERROR : " + cshel.__str__()
         parser_logger.error(errormessage)
-    return;
-
-
-# Method : parseKMLfiles()
-#
-# To parse and store the KML files.
-#
-def parseKMLfiles(indir, outputKMLdir, kmlName):
-    parser_logger.info("KML navigator")
-    outKMLnav = outputKMLdir + "navigator.kml"
-    
-    # Only parse data, if a KML does not exist.
-    if ( os.path.exists(outKMLnav) == False):
-        parseKMLnav = navigator(indir, 1);
-        parseKMLnav.parseKML();
-        parseKMLnav.saveKML(outKMLnav, kmlName);
-    
-        del(parseKMLnav)
-
     return;
 
 # Method : set_logger()
@@ -233,8 +126,8 @@ def usage():
 
     print "SYNOPSIS \n"
     print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename]"
-    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename] --parsemat"
-    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename ] --parsekml"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename]"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename ]"
 
     print "\nDESCRIPTION"
     print "\tparsexmlfile.py script would parse the Gavia XML files and generate MAT and KML files."
@@ -245,13 +138,6 @@ def usage():
 
     print "\n\t--datadir=[directory]"
     print "\t\tThe datadir is mandatory."
-    print "\t\tThe directory given here should have the following structure :- \n"
-    print "\t\t--[directory]"
-    print "\t\t    --cruise Name"
-    print "\t\t      --gaviaxmllogs"
-    print "\t\t        --parsed       # where mat files would be generated."
-    print "\t\t        --unzipped     # where Gavia xml files should be."
-    print "\t\t      --kml            # where the kml file would be generated"
 
     print "\n\t--daemon"
     print "\t\tIf this  parameter is provided, the parsing process would run in the background."
@@ -262,24 +148,18 @@ def usage():
     print "\t\tThe logfile would be ignored if the --daemon flag is not given."
     print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
 
-    print "\n\t--parsemat"
-    print "\t\tIf you only want the MAT files to be generated."
+    print "\n\t--parsexls"
+    print "\t\tIf you only want the XLS files to be generated."
 
-    print "\n\t--parsekml"
-    print "\t\tIf you only want the KML files to be generated."
-    
     print "\n\t--debug"
     print "\t\tUsed only for debugging purposes. Would print a lot of log messages."
     
     print "\nEXAMPLES"
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the MAT and KML file"
+    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the XLS file"
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --daemon --logfile=/tmp/logfile"
 
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the MAT file"
-    print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsemat --logfile=/tmp/logfile"
-
-    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the KML file"
-    print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsekml --logfile=/tmp/logfile"
+    print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the XLS file"
+    print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsexls --logfile=/tmp/logfile"
     
     print "\nWARNING"
     print "If you don't understand background process in unix/linux, DO NOT GIVE --daemon option (IT WOULD BE BAD FOR YOU).\n"
@@ -289,7 +169,7 @@ def main(argv):
     logfile = None
     debugmode = False
     isdaemon = False
-    parseMAT = False;
+    parseXLS = False;
     parseKML = False;
     try:
         opts,args = getopt.getopt(argv, "dmlb:h", ["datadir=", "daemon", "logfile=", "debug", "parsemat", "parsekml", "help"])
@@ -308,10 +188,8 @@ def main(argv):
             isdaemon = True;
         elif opt in ("-l", "--logfile"):
             logfile = arg;
-        elif opt in ( "--parsemat"):
-            parseMAT = True;
-        elif opt in ( "--parsekml"):
-            parseKML = True;
+        elif opt in ( "--parsexls"):
+            parseXLS = True;
         elif opt in ("--debug"):
             debugmode = True;
         else:
@@ -331,11 +209,11 @@ def main(argv):
             sys.exit()
             
     # Arguments are good.
-    
-    if (parseMAT == False and parseKML == False):
-        parseMAT = True;
-        parseKML = True;
-        
+
+    # Force XLS parsing.
+    if (parseXLS == False):
+        parseXLS = True;
+
     # Set Logger.
     set_logger(isdaemon,logfile,debugmode)
     decay = []
@@ -343,8 +221,8 @@ def main(argv):
     # FOR TESTING I am making the same structure locally.
     # parsing the xml logs from the actual data and storing the 
     # mat files locally.
-    outputdir = "/Users/gavia/harman/temp/";
-    #outputdir = datadir;
+    outputdir = "/Users/harmanpatial/temp/kalpana/xlsfiles/";
+    inputdir = datadir;
     count = 0;
         
     # FOR TESTING.
@@ -372,26 +250,21 @@ def main(argv):
 #        print "I/O error({0}): {1}".format(errno, os.strerror)
     
     # Now parse directories
+
     try:
-        listing = os.listdir(datadir);
-        for indir in listing:
-            if ( str.isdigit(indir[0:2])): # First 2 char should be digits YYYYMMDD
-                parser_logger.info("Processing Directory : " + indir)
-                curr_dir = outputdir + indir; # adding the full name(or relative name)
-                inputdir = datadir + indir + "/gaviaxmllogs/unzipped/"
-                matlabdir = curr_dir + "/gaviaxmllogs/parsed/"
-                kmldir = curr_dir + "/kml/"
+#        listing = os.listdir(datadir);
+#        for indir in listing:
+#            if ( str.isdigit(indir[0:2])): # First 2 char should be digits YYYYMMDD
+        parser_logger.info("Processing Directory : " + datadir)
+
+        parser_logger.info("Input Dir : " + inputdir)
+        parser_logger.info("Output Dir : " + outputdir)
                 
-                #print "Input Dir : ", inputdir
-                #print "Output Dir : ", matlabdir
-                
-                # Check if there are already MAT files.
-                if (parseMAT == True):
-                    parseMATfiles(inputdir, matlabdir) #parseMATFiles
-                if (parseKML == True):
-                    parseKMLfiles(inputdir, kmldir, indir); #parseKMLFiles
-            else:
-                decay.append(indir)
+        # Let's parse the XML files.
+        if (parseXLS == True):
+	    parseXLSfiles(datadir, outputdir) #parseXLSFiles
+        else:
+            decay.append(inputdir)
     except IOError (errno, os.strerror):
         print "I/O error({0}): {1}".format(errno, os.strerror)
  
