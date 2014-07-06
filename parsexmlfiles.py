@@ -2,10 +2,6 @@
 #
 # This File contains classes for each kind of XML find.
 #
-# Harman Patial
-# UDEL/CSHEL
-# October 2011
-#
 # This is the Main File, that should be run inorder to start the
 # parsing, it takes two arguments.
 #
@@ -19,10 +15,8 @@ import fnmatch, copy
 import logging
 from logging.handlers import RotatingFileHandler 
 
-from gaviaxmllog import buildClass
-from gaviaxmllog import on_gallery_episodes
-from gaviaxmllog import adcp, autopilot, collision, mag, magfg
-from gaviaxmllog import depth, engineer, flntu, gps, gyro, navigator, seanav, imagemetadata
+from tms import buildClass
+from tms import on_gallery_episodes
 
 from parsexmllogs import CSHELParseError
 
@@ -50,11 +44,13 @@ def parseXLSfiles(inDir, outDir):
         build = buildClass()
 
         for inputFile in lsFiles:
-            parser_logger.debug("Input File : " + inputFile)
+            compOutputFileName = outDir + inputFile[0:-3] + "xls"
+            parser_logger.debug("Input File : " + inputFile )
+            parser_logger.debug("Output File : " + compOutputFileName)
             # For Testing ---- Trying to fail
             # className = className + "red"
             # Make a call to the className
-            parserObject = build.construct(inputFile)
+            parserObject = build.construct(inputFile, inDir)
             if parserObject is None:  # No matching class for this file
                 parser_logger.warning(" *************************************** ")
                 parser_logger.info("FAILURE : NO FILE CLASS FOR FILE : " + inputFile)
@@ -62,9 +58,7 @@ def parseXLSfiles(inDir, outDir):
                 continue # Continue to the next file
       
             # Parse the file.
-            parserObject.parse()
-                    
-                    
+            parserObject.parse(compOutputFileName)
 
 
             
@@ -98,7 +92,7 @@ def set_logger(isdaemon,logfile,debugmode):
     if isdaemon is True:
         # Log into a Log File.
         rotatingFH = RotatingFileHandler(logfile, mode='a', 
-                                         maxBytes=7340032, backupCount=4,
+                                         maxBytes=7340032, backupCount=7,
                                          encoding=None, delay=False)
         rotatingFH.setFormatter(logging.Formatter(
                                     fmt="%(asctime)s : %(levelname)s : %(message)s", 

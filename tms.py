@@ -2,10 +2,6 @@
 #
 # This File contains classes for each kind of XML find.
 #
-# Harman Patial
-# UDEL/CSHEL
-# September 2011
-#
 # These classes should be called for parsing the data 
 # in the log directory.
 # Any additional functionality should be added here.
@@ -33,11 +29,11 @@ class on_gallery_episodes(parsexmllogs):
         parser_logger.info("Trying to initialize");
         super(on_gallery_episodes, self).__init__(inputFile)
 
-    def parse(self):
+    def parse(self, outputFile):
         parser_logger.info("Trying lasfd  asfd sadf");
         self.internalfillElmtsToParse('datatoextract/template_on_gallery_episodes-db.xml');  # Template File
-        return
-        self.internalParse(outputFile, saveInXLS); # Parent Method, actual parsing.
+        parser_logger.info("Performing Internal Parse");
+        self.internalParse(outputFile, True); # Parent Method, actual parsing.
     
     def saveXLS(self,outputXLSfile):
         # Now parse all the files and create a MAT file.
@@ -56,7 +52,7 @@ classNames = { "on_gallery_episodes" : on_gallery_episodes };
 class buildClass:
     def __init__(self): pass
 
-    def construct(self, inputFile):
+    def construct(self, inputFile, inDir):
         instance = None
         try:
             for className in classNames.keys():
@@ -66,7 +62,8 @@ class buildClass:
                 if fnmatch.fnmatch(inputFile, toSearch):
                     parser_logger.debug("Class Name : " + className) 
                     parser_logger.info("What What " + classNames[className].__name__)
-                    instance = classNames[className](inputFile)
+                    compInputFileName = inDir + inputFile
+                    instance = classNames[className](compInputFileName)
                     break
             return instance
         except AttributeError:

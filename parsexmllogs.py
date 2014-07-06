@@ -14,8 +14,6 @@
 
 import string as s
 import exceptions
-import scipy as sci
-import scipy.io as sio
 import sys, os, math
 import fnmatch, copy
 import errno
@@ -62,31 +60,31 @@ class parsexmllogs(object):
         
     def internalfillElmtsToParse(self,filename):
         # Set the elmtstoparse data structure.
-        firstLevelDic = {}
+        self.elmtstoparse = {}
         try:
             doc = xml.dom.minidom.parse(filename)
             firstLayers = doc.getElementsByTagName('elementstoparse').item(0).childNodes
 
             for firstLayer in firstLayers:
                 if firstLayer.nodeType is firstLayer.ELEMENT_NODE:
-                    parser_logger.info("First Layer node : " + firstLayer.nodeName)
+                    parser_logger.debug("First Layer node : " + firstLayer.nodeName)
                     for firstLayerAttr in firstLayer.attributes.keys():
-                        parser_logger.info("Attribute Name : " + firstLayerAttr + " <> Value : " + firstLayer.attributes[firstLayerAttr].value)
+                        parser_logger.debug("Attribute Name : " + firstLayerAttr + " <> Value : " + firstLayer.attributes[firstLayerAttr].value)
                         if(firstLayer.attributes[firstLayerAttr].value == "parent"):
-                            firstLevelDic[str(firstLayer.nodeName)] = {}
+                            self.elmtstoparse[str(firstLayer.nodeName)] = {}
                             secondLayers = firstLayer.childNodes
                             for secondLayer in secondLayers:
                                 if secondLayer.nodeType is secondLayer.ELEMENT_NODE:
-                                    parser_logger.info("Second Layer node : " + secondLayer.nodeName)
-                                    if str(secondLayer.nodeName) not in firstLevelDic[str(firstLayer.nodeName)]:
-                                        firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)] = {}
+                                    parser_logger.debug("Second Layer node : " + secondLayer.nodeName)
+                                    if str(secondLayer.nodeName) not in self.elmtstoparse[str(firstLayer.nodeName)]:
+                                        self.elmtstoparse[str(firstLayer.nodeName)][str(secondLayer.nodeName)] = {}
                                     for secondLayerAttr in secondLayer.attributes.keys():
-                                        parser_logger.info("Second Layer node : " + secondLayerAttr)
-                                        if str(secondLayerAttr) not in firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)]:
-                                            firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)][str(secondLayerAttr)] = []
-                                        firstLevelDic[str(firstLayer.nodeName)][str(secondLayer.nodeName)][str(secondLayerAttr)].append(str(secondLayer.attributes[secondLayerAttr].value))
+                                        parser_logger.debug("Second Layer node : " + secondLayerAttr)
+                                        if str(secondLayerAttr) not in self.elmtstoparse[str(firstLayer.nodeName)][str(secondLayer.nodeName)]:
+                                            self.elmtstoparse[str(firstLayer.nodeName)][str(secondLayer.nodeName)][str(secondLayerAttr)] = []
+                                        self.elmtstoparse[str(firstLayer.nodeName)][str(secondLayer.nodeName)][str(secondLayerAttr)].append(str(secondLayer.attributes[secondLayerAttr].value))
              
-            print "The whole dictinory : " + str(firstLevelDic)
+            parser_logger.debug("The whole dictionary : " + str(self.elmtstoparse))
             #node = str(ch.nodeName)      # Converting from Unicode to Normal String.
         except IOError, (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
@@ -104,33 +102,27 @@ class parsexmllogs(object):
         except IOError, (errno, strerror):
             print "I/O error({0}): {1}".format(errno, strerror)
         
-    def internalParse(self):
+    def internalParse(self, outputFile, saveinXLS):
         for file in self.inputfiles:
-            parser_logger.debug("Parsing file : " + file)
+            parser_logger.debug("internalParse file : " + file)
             try:
                 Nentries = 0;
-                # Calculate the Number of Entries.
                 parser = make_parser()
-                ce = CountElements()
-                ee = EHparse()
-                parser.setContentHandler(ce)
-                parser.setErrorHandler(ee)
-                parser.parse(file)
-                Nentries = ce.getNumofEntries()
-                self.totalEntries = self.totalEntries + Nentries
+                # Calculate the Number of Entries.
+                #ce = CountElements()
+                #ee = EHparse()
+                #parser.setContentHandler(ce)
+                #parser.setErrorHandler(ee)
+                #parser.parse(file)
+                #Nentries = ce.getNumofEntries()
+                #self.totalEntries = self.totalEntries + Nentries
 
                 datatoparse = {}
-                for ch in self.elmtstoparse:
-                    datatoparse[ch] = sci.zeros((Nentries,1),'double')
-                
-                # Initialize to nans.
-                for key in datatoparse.keys():
-                    datatoparse[key].fill(sci.nan)
-                dh = CHparse(datatoparse)
+                dh = CHparse(self.elmtstoparse)
                 eh = EHparse()
                 parser.setContentHandler(dh)
                 parser.setErrorHandler(eh)
-                parser.parse(file);  # The file to parse.
+                parser.parse(open(file));  # The file to parse.
                 self.data.append(datatoparse) # Storing in the data structure.
             except IOError, (errno, strerror):
                 print "I/O error({0}): {1}".format(errno, strerror)
@@ -144,7 +136,7 @@ class parsexmllogs(object):
                 thing = SAXParseException.getMessage(self);
                 print thing
             except Exception as e:
-                parser_logger.info("Failed to parse : " + file);
+                parser_logger.warning("Failed to parse : " + file);
                 print type(e)     # the exception instance
                 print e.args      # arguments stored in .args
                 print e           # __str__ allows args to printed directly
@@ -178,9 +170,6 @@ class parsexmllogs(object):
         temp1 = {}
         done = 0
         
-        for ch in self.elmtstoparse:
-            temp[ch] = sci.zeros((self.totalEntries,1),'double')
-
         # Initialize to nans.
         for ch in self.elmtstoparse:
             temp[ch].fill(sci.nan)
@@ -246,9 +235,14 @@ class CHparse(ContentHandler):
     def __init__(self,elementstoparse):
         # Define the data structures.
         self.__elementstoparse = elementstoparse
+        self.__document_started = 0
+        self.__data = {}
+        self.__dataKey = {}
         self.__temp = 0
         self.__count = 0
+        self.__startCapture = 0
         self.__capture = 0
+        self.__localDic = {}
         
     # Method : setDocumentLocator(self, locator)
     # Setting the locator of the file.    
@@ -259,6 +253,27 @@ class CHparse(ContentHandler):
     # Event indicating the start of the Document.    
     def startDocument(self):
         self.__document_started = 1
+        for firstLevelKey in self.__elementstoparse.keys():
+            #keyInData = str(firstLevelKey)  # Pushed "media"
+            keyInData = ""
+            parser_logger.debug("First keyInData")
+            parser_logger.debug("keyInData : " + keyInData)
+            for secondLevelKey in self.__elementstoparse[firstLevelKey].keys():
+                secondkeyInData = keyInData + str(secondLevelKey)  # Pushed title or id
+                parser_logger.debug("keyInData : " + keyInData)
+                if not self.__elementstoparse[firstLevelKey][secondLevelKey]:
+                    self.__data[secondkeyInData] = []
+                else:
+                    for thirdLayerKeys in self.__elementstoparse[firstLevelKey][secondLevelKey].keys():
+                        thirdkeyInData = secondkeyInData + "|" + str(thirdLayerKeys) # Pushed key
+                        for fourthLayerData in self.__elementstoparse[firstLevelKey][secondLevelKey][thirdLayerKeys]:
+                            temp = ""
+                            temp = thirdkeyInData + "|" + fourthLayerData
+                            parser_logger.debug("temp : " + temp)
+                            self.__data[temp] = []
+
+        parser_logger.debug("self.__data : " + str(self.__data))
+        return
 
     # Method : endDocument(self)
     def endDocument(self):
@@ -272,17 +287,36 @@ class CHparse(ContentHandler):
         
         if not(self.__document_started == 1):
             return
-        
+
         # Set the local flags accordingly. Simple if-else-if
         # We should change this to switch case.
-        if (name == 'entry'):
-            self.__elementstoparse['time'][self.__count] = float(attrs.getValue('timestamp'))
-        else:
-            for keys in self.__elementstoparse:
-                if (name == keys):
-                    self.__capture = 1
-                    break
-    
+        for key in self.__elementstoparse.keys():
+            if (name == key):
+                self.__startCapture = 1
+                self.__localDic = self.__elementstoparse[key]
+                #self.__dataKey = str(name)
+                return
+
+        if (self.__startCapture == 1):
+            for secondLevelKey in self.__localDic.keys():
+                if(name == secondLevelKey):
+                    self.__dataKey =  str(name)
+                    if not self.__localDic[secondLevelKey]: # Capture this
+                        parser_logger.debug("__dataKey : " + self.__dataKey)
+                        self.__capture = 1
+                    else:
+                        # Compare all the attributes for this node with the thirdLevel of Keys
+                        for thirdLevelKey in self.__localDic[secondLevelKey].keys():
+                            for attr in attrs.getNames():
+                                if(thirdLevelKey == attr):
+                                    self.__dataKey = self.__dataKey + "|" + str(attr)
+                                    for thirdLevelValues in self.__localDic[secondLevelKey][thirdLevelKey]:
+                                        if thirdLevelValues == attrs.getValue(attr):
+                                            self.__dataKey = self.__dataKey + "|" + str(thirdLevelValues)
+                                            parser_logger.debug("__dataKey : " + self.__dataKey)
+                                            self.__capture = 1
+                        
+                            
     # Method : endElement()
     #
     # Parse for the start of elements and if the 
@@ -292,51 +326,24 @@ class CHparse(ContentHandler):
         try: 
             if not(self.__document_started == 1):
                 return
- 
-            if (name == 'entry'):
-                self.__flag_entry = 0
-                self.__count = self.__count + 1
-            else:
-                for keys in self.__elementstoparse:
-                    if (name == keys):
-                        if (name == 'lat' and self.__temp != '0'):
-                            hem = self.__temp[-1]
-                            if ( hem != 'N' and hem != 'S'): # lat is in DD.DDDD format.
-                                self.__elementstoparse[name][self.__count] = float(self.__temp)
-                            else: # lon is in DDMM.MMMMC format.
-                                deg = self.__temp[0:2]
-                                minute = self.__temp[2:-1]
-                                if hem == 'S':
-                                    self.__elementstoparse[name][self.__count] = - (s.atof(deg)+s.atof(minute)/60)
-                                else:
-                                    self.__elementstoparse[name][self.__count] = s.atof(deg) + s.atof(minute)/60
-                        elif (name == 'lon' and self.__temp != '0'):
-                            hem = self.__temp[-1]
-                            if ( hem != 'E' and hem != 'W'): # lon is in DD.DDDD format.
-                                self.__elementstoparse[name][self.__count] = float(self.__temp)
-                            else: # lon is in DDMM.MMMMC format.
-                                deg = self.__temp[0:3]
-                                minute = self.__temp[3:-1]
-                                if hem == 'W':
-                                    self.__elementstoparse[name][self.__count] = - (s.atof(deg)+s.atof(minute)/60)
-                                else:
-                                    self.__elementstoparse[name][self.__count] = s.atof(deg) + s.atof(minute)/60
-                        elif(name == "eta" and self.__temp != '0'):
-                            year = int(self.__temp[0:4])
-                            month = int(self.__temp[5:7])
-                            day = int(self.__temp[8:10])
-                            hour = int(self.__temp[11:13])
-                            minute = int(self.__temp[14:16])
-                            second = int(self.__temp[17:19])
-                            msecond = self.__temp[20:self.__temp.__len__()]
-                            usecond = int(msecond)*1000
-                            dts = d.datetime(year,month,day,hour,minute,second,usecond)
-                            self.__elementstoparse[name][self.__count] = mktime(dts.timetuple()) + 1e-6*dts.microsecond
-                        else:
-                            self.__elementstoparse[name][self.__count] = float(self.__temp) # THIS IS WHERE DATA IS STORED 
-                        self.__capture = 0
-                        self.__temp = 0
-                        break
+            if not (self.__startCapture == 1):
+                return
+        
+            for key in self.__elementstoparse.keys():
+                if (name == key):
+                    self.__startCapture = 0
+                    for what in self.__data.keys():
+                        parser_logger.debug("DATA KEY : " + str(what))
+                        parser_logger.debug("DATA VALUE : " + str(self.__data[what]))
+                        self.__data[what] = []
+
+            if self.__capture == 1:
+                self.__data[self.__dataKey].append(self.__temp) # THIS IS WHERE DATA IS STORED 
+                #parser_logger.info("self.__dataKey : " + str(self.__data[self.__dataKey]))
+            self.__dataKey = ""
+            self.__capture = 0
+            self.__temp = 0
+
         except ValueError as v:
             errormessage = ""
             errormessage = errormessage + " ElementName = "
@@ -345,19 +352,34 @@ class CHparse(ContentHandler):
             errormessage = errormessage + str(self.__temp)
             errormessage = errormessage + " :: Count = "
             errormessage = errormessage + str(self.__count)
+            parser_logger.warning(v)
             raise CSHELParseError(errormessage)
 
     # Method : characters()
     # This is where the data is copied in the local 
     def characters(self, content):
         
-        if not(self.__document_started is 1):
+        try:
+            if not(self.__document_started == 1):
+                return
+            if (self.__capture is 1):
+                if not (self.__temp == 0):
+                    self.__temp = u' '.join((self.__temp, content)).encode('utf-8').strip()
+                else:
+                    self.__temp = content.encode('utf-8').strip()
+        except (UnicodeEncodeError, ValueError) as v:
+            errormessage = ""
+            errormessage = errormessage + " content = "
+            errormessage = errormessage + str(content)
+            errormessage = errormessage + " :: Value = "
+            errormessage = errormessage + str(self.__temp)
+            self.__startCapture = 0
+            self.__temp == 0
+            for what in self.__data.keys():
+                self.__data[what] = []
+            parser_logger.warning(v)
             return
-        if ( self.__capture is 1 ):
-            if not (self.__temp == 0):
-                self.__temp = str(self.__temp) + str(content)
-            else:
-                self.__temp = str(content);
+            raise CSHELParseError(errormessage)
 
 # Class : EHparse
 #
