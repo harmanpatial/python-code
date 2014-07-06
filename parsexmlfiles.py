@@ -18,7 +18,7 @@ from logging.handlers import RotatingFileHandler
 from tms import buildClass
 from tms import on_gallery_episodes
 
-from parsexmllogs import CSHELParseError
+from parsexmllogs import DIRECTParserError
 
 parser_logger = logging.getLogger('parsexmlfiles')
 
@@ -59,22 +59,9 @@ def parseXLSfiles(inDir, outDir):
       
             # Parse the file.
             parserObject.parse(compOutputFileName)
-
-
-            
         return;
-        
-        outaanderaaoxygen = outDir + ""
-        parseaanderaaoxygen = aanderaaoxygen(inDir, 1);
-        if ( os.path.exists(outaanderaaoxygen) == False):
-            parseaanderaaoxygen.parse();
-            parseaanderaaoxygen.saveMAT(outaanderaaoxygen)
-        
-        del(parseaanderaaoxygen)
-         
-        
-    except CSHELParseError as cshel:
-        errormessage = "ERROR : " + cshel.__str__()
+    except DIRECTParserError as direct:
+        errormessage = "ERROR : " + direct.__str__()
         parser_logger.error(errormessage)
     return;
 
@@ -84,14 +71,14 @@ def parseXLSfiles(inDir, outDir):
 # the Log File Name should be given through the command line.
 # Else we will just dump everything to the standard output.
 #
-def set_logger(isdaemon,logfile,debugmode):
+def set_logger(logFile,debugmode):
     # Setting the format
     FORMAT = '%(asctime)-15s %(clientip)s %(user)-8s %(message)s'
     parser_logger = logging.getLogger('parsexmlfiles')
     
-    if isdaemon is True:
+    if not logFile is None:
         # Log into a Log File.
-        rotatingFH = RotatingFileHandler(logfile, mode='a', 
+        rotatingFH = RotatingFileHandler(logFile, mode='a', 
                                          maxBytes=7340032, backupCount=7,
                                          encoding=None, delay=False)
         rotatingFH.setFormatter(logging.Formatter(
@@ -116,16 +103,15 @@ def set_logger(isdaemon,logfile,debugmode):
 # initiated.
 def usage():
     print "\nNAME "
-    print "\tparsexmlfiles.py -- Parse the Gavia XML files\n"
+    print "\tparsexmlfiles.py -- Parse XML files\n"
 
     print "SYNOPSIS \n"
-    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename]"
-    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename]"
-    print "\tpython parsexmlfiles.py --datadir=[directory] --daemon --logfile=[filename ]"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --logfile=[filename]"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --logfile=[filename]"
+    print "\tpython parsexmlfiles.py --datadir=[directory] --logfile=[filename ]"
 
     print "\nDESCRIPTION"
-    print "\tparsexmlfile.py script would parse the Gavia XML files and generate MAT and KML files."
-    print "\tThe MAT and KML files would be created per CRUISE."
+    print "\tparsexmlfile.py script would parse XML files and store them is SQL database."
     
     print "\nOPTIONS"
     print "\tThese are the options."
@@ -133,16 +119,10 @@ def usage():
     print "\n\t--datadir=[directory]"
     print "\t\tThe datadir is mandatory."
 
-    print "\n\t--daemon"
-    print "\t\tIf this  parameter is provided, the parsing process would run in the background."
-    print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
-
     print "\n\t--logfile=[filename]"
     print "\t\tThe full path of the file that would store the logs."
-    print "\t\tThe logfile would be ignored if the --daemon flag is not given."
-    print "\t\tIf --daemon is given, it is mandatory to give the --logfile parameter."
 
-    print "\n\t--parsexls"
+    print "\n\t--parseAndSaveSQL"
     print "\t\tIf you only want the XLS files to be generated."
 
     print "\n\t--debug"
@@ -150,14 +130,11 @@ def usage():
     
     print "\nEXAMPLES"
     print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the XLS file"
-    print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --daemon --logfile=/tmp/logfile"
+    print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --logfile=/tmp/logfile"
 
     print "\n\tThe following would parse the XML files located in \"/root/dataproducts/\" and generate the XLS file"
     print "\t\tEg: python parsexmlfiles.py --datadir=/root/dataproducts/ --parsexls --logfile=/tmp/logfile"
     
-    print "\nWARNING"
-    print "If you don't understand background process in unix/linux, DO NOT GIVE --daemon option (IT WOULD BE BAD FOR YOU).\n"
-
 def main(argv):
     datadir = None
     logfile = None
@@ -166,7 +143,7 @@ def main(argv):
     parseXLS = False;
     parseKML = False;
     try:
-        opts,args = getopt.getopt(argv, "dmlb:h", ["datadir=", "daemon", "logfile=", "debug", "parsemat", "parsekml", "help"])
+        opts,args = getopt.getopt(argv, "dmlb:h", ["datadir=", "logfile=", "debug", "parsemat", "parsekml", "help"])
     except getopt.GetoptError:
         print "error"
         usage();
@@ -178,8 +155,6 @@ def main(argv):
             sys.exit()
         elif opt in ("-d", "--datadir"):
             datadir = arg;
-        elif opt in ("-m", "--daemon"):
-            isdaemon = True;
         elif opt in ("-l", "--logfile"):
             logfile = arg;
         elif opt in ( "--parsexls"):
@@ -196,12 +171,6 @@ def main(argv):
         usage()
         sys.exit()
     
-    if isdaemon is True:
-        if logfile is None:
-            print(" Cannot Start : No Log file given in Daemon mode.\n")
-            usage()
-            sys.exit()
-            
     # Arguments are good.
 
     # Force XLS parsing.
@@ -209,7 +178,7 @@ def main(argv):
         parseXLS = True;
 
     # Set Logger.
-    set_logger(isdaemon,logfile,debugmode)
+    set_logger(logfile,debugmode)
     decay = []
     
     # FOR TESTING I am making the same structure locally.
@@ -219,36 +188,7 @@ def main(argv):
     inputdir = datadir;
     count = 0;
         
-    # FOR TESTING.
-    # Just creating a temp folder structure locally.
-    # DO IT ONCE - It is not required.
-#    try:
-#        listing = os.listdir(datadir);
-#        for infile in listing:
-#            if ( str.isdigit(infile[0:2])): # First 2 char should be digits YYYYMMDD
-#                print "Processing file : ", infile;
-#                curr_dir = outputdir + infile; # adding the full name(or relative name)
-#                os.mkdir(curr_dir)
-#                gaviaxmllogs = curr_dir + "/gaviaxmllogs"
-#                kmldir = curr_dir + "/kml/"
-#                os.mkdir(gaviaxmllogs)
-#                os.mkdir(kmldir)
-#                #print "Current Dir : ", curr_dir
-#                parsed_dir = gaviaxmllogs + "/parsed"
-#                print "Parsed Dir : ", parsed_dir;
-#                os.mkdir(parsed_dir)
-#                count = count + 1
-#            else:
-#                decay.append(infile)
-#    except IOError (errno, os.strerror):
-#        print "I/O error({0}): {1}".format(errno, os.strerror)
-    
-    # Now parse directories
-
     try:
-#        listing = os.listdir(datadir);
-#        for indir in listing:
-#            if ( str.isdigit(indir[0:2])): # First 2 char should be digits YYYYMMDD
         parser_logger.info("Processing Directory : " + datadir)
 
         parser_logger.info("Input Dir : " + inputdir)

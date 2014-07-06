@@ -126,11 +126,11 @@ class parsexmllogs(object):
                 self.data.append(datatoparse) # Storing in the data structure.
             except IOError, (errno, strerror):
                 print "I/O error({0}): {1}".format(errno, strerror)
-            except CSHELParseError as cshel:
+            except DIRECTParserError as direct:
                 errormessage = ""
                 errormessage = errormessage + "FileName = " + str(file)
-                errormessage = errormessage + str(cshel.__str__())
-                raise CSHELParseError(errormessage)
+                errormessage = errormessage + str(direct.__str__())
+                raise DIRECTParserError(errormessage)
             except SAXParseException:
                 print "\n Failed to parse file1: " + file
                 thing = SAXParseException.getMessage(self);
@@ -353,7 +353,7 @@ class CHparse(ContentHandler):
             errormessage = errormessage + " :: Count = "
             errormessage = errormessage + str(self.__count)
             parser_logger.warning(v)
-            raise CSHELParseError(errormessage)
+            raise DIRECTParserError(errormessage)
 
     # Method : characters()
     # This is where the data is copied in the local 
@@ -379,7 +379,7 @@ class CHparse(ContentHandler):
                 self.__data[what] = []
             parser_logger.warning(v)
             return
-            raise CSHELParseError(errormessage)
+            raise DIRECTParserError(errormessage)
 
 # Class : EHparse
 #
@@ -398,7 +398,7 @@ class EHparse(ErrorHandler):
         errormessage = "ColumnNumber"
         errormessage.append(self.getColumnNumber())
         print "\nLine Number :", getLineNumber(), " Column Number : ", getColumnNumber()
-        raise CSHELParseError(errormessage)
+        raise DIRECTParserError(errormessage)
     
     # A Fatal error has been encountered.
     def fatalError(e):
@@ -409,7 +409,7 @@ class EHparse(ErrorHandler):
         errormessage = "ColumnNumber"
         errormessage.append(self.getColumnNumber())
         print "\nLine Number :", getLineNumber(), " Column Number : ", getColumnNumber()
-        raise CSHELParseError(errormessage)
+        raise DIRECTParserError(errormessage)
         
     # Just a warning.
     # Can log the warning, if we are running as a daemon.
@@ -417,7 +417,7 @@ class EHparse(ErrorHandler):
         print "\n Just a Warning : I am not sure what to do"
         return
 
-# Class : CSHELParseError
+# Class : DIRECTParserError
 #
 # A User-Defined Exception Class.
 # This error is ultimately handled by parsexmlfiles 
@@ -426,7 +426,7 @@ class EHparse(ErrorHandler):
 # 1. To log the Error message (in log file or just to console).
 # 2. To stop parsing in a particular folder (only one kind of *.xml files).
 #
-class CSHELParseError(Exception):
+class DIRECTParserError(Exception):
     def __init__(self, value):
         self.value = value
         
