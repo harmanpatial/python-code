@@ -79,7 +79,7 @@ def set_logger(logFile,debugmode):
     if not logFile is None:
         # Log into a Log File.
         rotatingFH = RotatingFileHandler(logFile, mode='a', 
-                                         maxBytes=7340032, backupCount=7,
+                                         maxBytes=20970020, backupCount=7,
                                          encoding=None, delay=False)
         rotatingFH.setFormatter(logging.Formatter(
                                     fmt="%(asctime)s : %(levelname)s : %(message)s", 

@@ -26,13 +26,11 @@ parser_logger = logging.getLogger('parsexmlfiles')
 class on_gallery_episodes(parsexmllogs):
     def __init__(self,inputFile):
         # Initialize all the variables.
-        parser_logger.info("Trying to initialize");
         super(on_gallery_episodes, self).__init__(inputFile)
 
     def parse(self, outputFile):
-        parser_logger.info("Trying lasfd  asfd sadf");
+        parser_logger.info("Parsing the file : " + self.inputfiles[0]);
         self.internalfillElmtsToParse('datatoextract/template_on_gallery_episodes-db.xml');  # Template File
-        parser_logger.info("Performing Internal Parse");
         self.internalParse(outputFile, True); # Parent Method, actual parsing.
     
     def saveXLS(self,outputXLSfile):
@@ -48,6 +46,9 @@ classNames = { "on_gallery_episodes" : on_gallery_episodes };
 #
 # Class : buildClass
 #
+# This would return the instance of appropriate class based on the inputFile.
+# Each type of instance that it can return has a one to one mapping with
+# template files.
 #
 class buildClass:
     def __init__(self): pass
@@ -61,7 +62,6 @@ class buildClass:
                 parser_logger.debug("To Search : " + toSearch)
                 if fnmatch.fnmatch(inputFile, toSearch):
                     parser_logger.debug("Class Name : " + className) 
-                    parser_logger.info("What What " + classNames[className].__name__)
                     compInputFileName = inDir + inputFile
                     instance = classNames[className](compInputFileName)
                     break

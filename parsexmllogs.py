@@ -108,21 +108,12 @@ class parsexmllogs(object):
             try:
                 Nentries = 0;
                 parser = make_parser()
-                # Calculate the Number of Entries.
-                #ce = CountElements()
-                #ee = EHparse()
-                #parser.setContentHandler(ce)
-                #parser.setErrorHandler(ee)
-                #parser.parse(file)
-                #Nentries = ce.getNumofEntries()
-                #self.totalEntries = self.totalEntries + Nentries
-
                 datatoparse = {}
                 dh = CHparse(self.elmtstoparse)
                 eh = EHparse()
                 parser.setContentHandler(dh)
                 parser.setErrorHandler(eh)
-                parser.parse(open(file));  # The file to parse.
+                parser.parse(file);  # The file to parse.
                 self.data.append(datatoparse) # Storing in the data structure.
             except IOError, (errno, strerror):
                 print "I/O error({0}): {1}".format(errno, strerror)
@@ -277,6 +268,8 @@ class CHparse(ContentHandler):
 
     # Method : endDocument(self)
     def endDocument(self):
+        parser_logger.info("File Name : " + str(self.__count))
+        parser_logger.info("Total number of entries parsed : " + str(self.__count))
         return
         
     # Method : startElement()
@@ -294,6 +287,8 @@ class CHparse(ContentHandler):
             if (name == key):
                 self.__startCapture = 1
                 self.__localDic = self.__elementstoparse[key]
+                for what in self.__data.keys():
+                    self.__data[what] = []
                 #self.__dataKey = str(name)
                 return
 
@@ -332,9 +327,11 @@ class CHparse(ContentHandler):
             for key in self.__elementstoparse.keys():
                 if (name == key):
                     self.__startCapture = 0
+                    # TODO : This is where the data should be pushed to SQL Database
                     for what in self.__data.keys():
                         parser_logger.debug("DATA KEY : " + str(what))
                         parser_logger.debug("DATA VALUE : " + str(self.__data[what]))
+                        self.__count = self.__count + 1 
                         self.__data[what] = []
 
             if self.__capture == 1:
@@ -346,14 +343,22 @@ class CHparse(ContentHandler):
 
         except ValueError as v:
             errormessage = ""
+            errormessage = errormessage + " Line Number = "
+            errormessage = errormessage + str(self.__locator.getLineNumber())
+            errormessage = errormessage + " Column Number = "
+            errormessage = errormessage + str(self.__locator.getColumnNumber())
             errormessage = errormessage + " ElementName = "
             errormessage = errormessage + str(name)
-            errormessage = errormessage + " :: Value = "
-            errormessage = errormessage + str(self.__temp)
-            errormessage = errormessage + " :: Count = "
+            errormessage = errormessage + " Total Count = "
             errormessage = errormessage + str(self.__count)
+            self.__startCapture = 0
+            self.__capture = 0
+            self.__temp = 0
+            for what in self.__data.keys():
+                self.__data[what] = []
+            parser_logger.warning(errormessage)
             parser_logger.warning(v)
-            raise DIRECTParserError(errormessage)
+            #raise DIRECTParserError(errormessage)
 
     # Method : characters()
     # This is where the data is copied in the local 
@@ -369,12 +374,16 @@ class CHparse(ContentHandler):
                     self.__temp = content.encode('utf-8').strip()
         except (UnicodeEncodeError, ValueError) as v:
             errormessage = ""
-            errormessage = errormessage + " content = "
-            errormessage = errormessage + str(content)
-            errormessage = errormessage + " :: Value = "
-            errormessage = errormessage + str(self.__temp)
+            errormessage = errormessage + " Line Number = "
+            errormessage = errormessage + str(self.__locator.getLineNumber())
+            errormessage = errormessage + " Column Number = "
+            errormessage = errormessage + str(self.__locator.getColumnNumber())
+            errormessage = errormessage + " Total Count = "
+            errormessage = errormessage + str(self.__count)
+            parser_logger.warning(errormessage)
             self.__startCapture = 0
-            self.__temp == 0
+            self.__capture = 0
+            self.__temp = 0
             for what in self.__data.keys():
                 self.__data[what] = []
             parser_logger.warning(v)
