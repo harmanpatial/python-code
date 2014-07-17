@@ -2,10 +2,10 @@
 <parse>
 <elementstoparse>
     <media templatetype="parent">
-    <title></title>
-    <id type="seriesId"></id>
-    <id type="TMSId"></id>
-    <URI></URI>
+        <title></title>
+        <id type="seriesId"></id>
+        <id type="TMSId"></id>
+        <URI></URI>
     </media>
 </elementstoparse>
 </parse>
